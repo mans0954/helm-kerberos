@@ -1,0 +1,84 @@
+apiVersion: apps/v1beta2
+kind: Deployment
+metadata:
+  name: {{ template "kerberos.fullname" . }}
+  labels:
+    app: {{ template "kerberos.name" . }}
+    chart: {{ template "kerberos.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "kerberos.name" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "kerberos.name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      volumes:
+        - name: krb5kdc
+      {{- if .Values.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName:  krb5kdcpvc
+      {{- else }}
+          emptyDir: {}
+      {{- end }}
+        - name: config
+          configMap:
+            name: {{ .Release.Name }}-configmap 
+        - name: pv0002
+          capacity:
+            storage: 0.5Gi
+          hostPath:
+            path: "/host-folder"
+      containers:
+        - name: kdc
+          image: "{{ .Values.kdcimage.repository }}:{{ .Values.kdcimage.tag }}"
+          imagePullPolicy: {{ .Values.kdcimage.pullPolicy }}
+          volumeMounts:
+            - name: pv0002
+              mountPath: /etc/krb5kdc
+            - name: config
+              mountPath: /etc/kdc
+          ports:
+            - name: kerberos
+              containerPort: 88
+              protocol: TCP
+          command: ["/usr/bin/tail","-f","/var/log/apt/term.log"]
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+{{- if .Values.ismaster }}
+        - name: kadmin
+          image: "{{ .Values.kadminimage.repository }}:{{ .Values.kadminimage.tag }}"
+          imagePullPolicy: {{ .Values.kadminimage.pullPolicy }}
+          volumeMounts:
+            - name: pv0002
+              mountPath: /etc/krb5kdc
+          ports:
+            - name: kerberos-adm
+              containerPort: 749
+              protocol: TCP
+          livenessProbe:
+            tcpSocket:
+              port: kerberos-adm
+          readinessProbe:
+            tcpSocket:
+              port: kerberos-adm
+          resources:
+{{- end }}
+    {{- with .Values.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}
