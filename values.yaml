@@ -12,7 +12,7 @@ persistence:
 kdcimage:
   repository: mans0954/kerberos-kdc
   tag: latest
-  pullPolicy: Always
+  pullPolicy: IfNotPresent
 
 kadminimage:
   repository: mans0954/kerberos-kadmin

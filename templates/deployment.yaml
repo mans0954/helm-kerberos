@@ -1,4 +1,4 @@
-apiVersion: apps/v1beta2
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ template "kerberos.fullname" . }}
@@ -35,6 +35,14 @@ spec:
             storage: 0.5Gi
           hostPath:
             path: "/host-folder"
+      initContainers:
+        - name: "init-myservice"
+          image: "{{ .Values.kadminimage.repository }}:{{ .Values.kadminimage.tag }}"
+          imagePullPolicy: {{ .Values.kdcimage.pullPolicy }}
+          command: ["sh", "-c", "if [ ! -f /etc/krb5kdc/principal ] ; then kdb5_util -P password -r EXAMPLE.ORG create -s; fi;" ]
+          volumeMounts:
+            - name: pv0002
+              mountPath: /etc/krb5kdc
       containers:
         - name: kdc
           image: "{{ .Values.kdcimage.repository }}:{{ .Values.kdcimage.tag }}"
@@ -48,7 +56,7 @@ spec:
             - name: kerberos
               containerPort: 88
               protocol: TCP
-          command: ["/usr/bin/tail","-f","/var/log/apt/term.log"]
+#          command: ["/usr/bin/tail","-f","/var/log/apt/term.log"]
           resources:
 {{ toYaml .Values.resources | indent 12 }}
 {{- if .Values.ismaster }}
@@ -58,16 +66,19 @@ spec:
           volumeMounts:
             - name: pv0002
               mountPath: /etc/krb5kdc
+            - name: config
+              mountPath: /etc/kadmin
           ports:
             - name: kerberos-adm
               containerPort: 749
               protocol: TCP
-          livenessProbe:
-            tcpSocket:
-              port: kerberos-adm
-          readinessProbe:
-            tcpSocket:
-              port: kerberos-adm
+#          command: ["/usr/bin/tail","-f","/var/log/apt/term.log"]
+#          livenessProbe:
+#            tcpSocket:
+#              port: kerberos-adm
+#          readinessProbe:
+#            tcpSocket:
+#              port: kerberos-adm
           resources:
 {{- end }}
     {{- with .Values.nodeSelector }}
