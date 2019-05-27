@@ -31,8 +31,8 @@ spec:
           configMap:
             name: {{ .Release.Name }}-configmap 
         - name: pv0002
-          capacity:
-            storage: 0.5Gi
+#          capacity:
+#            storage: 0.5Gi
           hostPath:
             path: "/host-folder"
       initContainers:
