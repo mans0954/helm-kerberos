@@ -23,20 +23,7 @@ kadminimage:
 
 service:
   type: ClusterIP
-  port: 80
-
-ingress:
-  enabled: true
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
-  path: /
-  hosts:
-    - kdc.tier.minikube
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
+  port: 88
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious

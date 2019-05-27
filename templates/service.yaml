@@ -11,9 +11,9 @@ spec:
   type: {{ .Values.service.type }}
   ports:
     - port: {{ .Values.service.port }}
-      targetPort: http
+      targetPort: kerberos
       protocol: TCP
-      name: http
+      name: kerberos
   selector:
     app: {{ template "kerberos.name" . }}
     release: {{ .Release.Name }}

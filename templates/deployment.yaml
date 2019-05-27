@@ -56,6 +56,12 @@ spec:
             - name: kerberos
               containerPort: 88
               protocol: TCP
+          livenessProbe:
+            tcpSocket:
+              port: kerberos
+          readinessProbe:
+            tcpSocket:
+              port: kerberos
 #          command: ["/usr/bin/tail","-f","/var/log/apt/term.log"]
           resources:
 {{ toYaml .Values.resources | indent 12 }}
