@@ -34,12 +34,12 @@ spec:
 #          capacity:
 #            storage: 0.5Gi
           hostPath:
-            path: "/host-folder"
+            path: "/host-folder/{{ .Release.Name }}"
       initContainers:
         - name: "init-myservice"
           image: "{{ .Values.kadminimage.repository }}:{{ .Values.kadminimage.tag }}"
           imagePullPolicy: {{ .Values.kdcimage.pullPolicy }}
-          command: ["sh", "-c", "if [ ! -f /etc/krb5kdc/principal ] ; then kdb5_util -P password -r {{ .Values.kerberos.realm }} create -s; RUN kadmin.local -q \"add_principal -pw password1 user1@{{ .Values.kerberos.realm }}\" ; fi;" ]
+          command: ["sh", "-c", "if [ ! -f /etc/krb5kdc/principal ] ; then kdb5_util -P password -r {{ .Values.global.kerberos.realm }} create -s; RUN kadmin.local -q \"add_principal -pw password1 user1@{{ .Values.global.kerberos.realm }}\" ; fi;" ]
           volumeMounts:
             - name: pv0002
               mountPath: /etc/krb5kdc

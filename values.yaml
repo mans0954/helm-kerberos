@@ -5,8 +5,6 @@
 replicaCount: 1
 
 ismaster: true
-kerberos:
-  realm: EXAMPLE.ORG
 
 persistence:
   enabled: false
@@ -42,3 +40,7 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+global:
+  kerberos:
+    realm: EXAMPLE.ORG

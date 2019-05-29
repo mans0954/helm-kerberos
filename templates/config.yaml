@@ -4,20 +4,4 @@ metadata:
   name: {{ .Release.Name }}-configmap
 data:
   krb5.conf: |
-    [libdefaults]
-    	default_realm = EXAMPLE.ORG
-
-    [realms]
-    	EXAMPLE.ORG = {
-    		kdc = kdc.example.org
-    		admin_server = kadmin.example.org
-    	}
-
-    [domain_realm]
-    	.example.org = EXAMPLE.ORG
-    	example.org = EXAMPLE.ORG
-
-    [logging]
-    	kdc = STDERR
-    	admin_server = STDERR
-    	default = STDERR
+  {{- include "krb5.conf" . | nindent 4 }}
